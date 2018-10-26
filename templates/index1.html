@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Handwritten Digit Recognition using Convolutional Neural Networks</title>
+  
+  
+  	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+  
+
+<style type="text/css">
+	.ai-box{
+		padding: 50px 0;
+	}
+	#canvas{
+		border: 2px solid #a7a7a7;
+		cursor: crosshair;
+		    position: relative;
+    z-index: 100;
+	}	
+	.ai-data-canvas{
+		padding: 50px;
+		margin-top: 30px;
+		width: 697px;
+		margin: 0 auto;
+-webkit-box-shadow: 0 0 5px 0 rgba(000,000,000,0.2);
+box-shadow: 0 0 5px 0 rgba(000,000,000,0.2);
+		-webkit-border-radius: 4px;
+				        border-radius: 4px;		
+		background: #FFF; 
+				position: relative;
+		z-index: 10;
+	}
+	h1{
+		font-size: 30px; 
+		line-height: 40px;
+		font-weight: 400;
+		margin-bottom: 40px;
+		position: relative;
+		z-index: 10;
+		color: #FFF;
+	}
+	h1 span{
+		font-weight: 600;
+	}
+	.ai-data-canvas{
+		
+	}
+	.drawer-cover{
+		position: relative;
+	}
+	.draw-alerts{
+position: absolute;
+    left: 27px;
+    bottom: 52px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #7b7b7b;
+	}
+	.bg-box{
+		position: fixed;
+		width: 100%;
+		height: 100%;
+		top: 0;
+		left: 0;
+background: #8E2DE2;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to right, #4A00E0, #8E2DE2);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to right, #4A00E0, #8E2DE2); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+		
+	}
+	.bg-box div{
+		opacity: 0.5;
+	}
+
+	.result-box{
+		text-align: center;
+		padding: 50px 0;
+		background: #efefef;
+		-webkit-border-radius: 5px;
+		        border-radius: 5px;
+		border: 1px solid #ccc; 
+		    min-height: 329px;
+		
+	}
+	.result-box h3{
+		font-size: 18px;
+		text-transform: uppercase;
+		font-weight: 700;
+	}
+	.result-box h2{
+		font-size: 100px;
+		color: #4A00E0;
+		font-weight: 200;
+	}
+	.result-box .btn-panel{
+		margin-top: 40px;
+	}
+	.result-box .btn-panel .btn{
+		margin: 0 3px;
+	}
+	.prediction-cover{
+		position: relative;
+		z-index: 100;
+	}
+	.prediction-cover{
+		padding: 20px; 
+		background: #FFF;
+		width: 697px;
+		margin: 0 auto;		
+		margin-top: 5px;
+		-webkit-border-radius: 4px;
+				        border-radius: 4px;				
+	}
+	.prediction-cover .btn{
+		background: #8E2DE2;
+		border-color: #8E2DE2;
+	}
+</style>
+
+</head>
+
+<body>
+
+	<div class="ai-box container">
+
+		<h1 class="text-center">Handwritten Digit Recognition using <br /> <span>Convolutional Neural Networks</span></h1>
+		<div class="ai-data-canvas">
+				<div class="row">
+					<div class="col-6 drawer-cover">
+						<div class="draw-alerts" role="alert">
+							 Draw the Digit inside this Box!
+						</div>
+						<canvas id="canvas" width="280" height="280"></canvas>
+						<div id="debug" >
+							<!-- <input type="color" id="colors">
+							<input type="number" id="lineWidth" style="width:60px" value="0.2" step="0.1" min="0.1"> -->
+
+
+							<input type="button" id="clearButton" value="Clean Drawing box" style="" class="btn btn-outline-secondary btn-block"> 
+							
+							
+						</div>						
+					</div>
+					<div class="col-6"> 
+						<div class="result-box">
+							<h3>Result</h3>
+							<h2 id="result" >5 </h2> 
+							<div class="btn-panel">
+								<button class="btn btn-success" data-toggle="modal" data-target="#correct"><i class="fas fa-check"></i> Correct</button>
+								<button class="btn btn-danger" data-toggle="modal" data-target="#wrong"><i class="fas fa-times"></i></i> Wrong</button>
+							</div>
+						</div>							
+					</div>
+				</div>
+		</div>
+		
+
+
+		<div class="prediction-cover">
+			
+			<a href="#" class="btn btn-primary btn-block btn-lg"> Predict Number </a> 			
+		</div>
+	
+	</div>
+
+   <!-- The Modal -->
+  <div class="modal" id="correct">
+    <div class="modal-dialog">
+      <div class="modal-content"> 
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">success</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+
+ 				<p">Thanks For Feedback</p>
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" data-dismiss="modal">Done</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+
+   <!-- The Modal -->
+  <div class="modal" id="wrong">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Please add Correct Number</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+          <div class="form-group">
+		  <label for="usr">Number :</label>
+		  <input type="text" class="form-control" id="usr">
+		</div>
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" data-dismiss="modal">Done</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+	<div class="bg-box">
+		<div id="particles-js"></div>
+	</div>
+		
+
+
+  		<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+  		  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+
+
+     <!--  <script src="{{ url_for('static',filename='index.js') }}"></script> -->
+      <script type="text/javascript">
+     
+        $(".myButton").click(function(){
+          var $SCRIPT_ROOT = '{{ request.script_root|tojson|safe }}';
+          var canvasObj = document.getElementById("canvas");
+          var img = canvasObj.toDataURL();
+          $.ajax({
+            type: "POST",
+            url: $SCRIPT_ROOT + "/predict/",
+            data: img,
+            success: function(data){
+              $('#result').text(' Predicted Output: '+data);
+            }
+          });
+        });
+     
+     </script>
+
+
+  		<script src='particles.js'></script> 
+
+
+	    <script type="text/javascript">
+	   
+
+	   
+
+  particlesJS('particles-js',   
+    
+    {
+      "particles": {
+        "number": {
+          "value": 180,
+          "density": {
+            "enable": true,
+            "value_area": 800
+          }
+        },
+        "color": {  
+            "value": ["#ffffff", "#ffffff", "#ffffff", "#ffffff"]
+        },
+        "shape": {
+          "type": "circle",
+          "stroke": {
+            "width": 0,
+            "color": "#000000"
+          },
+          "polygon": {
+            "nb_sides": 5
+          },
+          "image": {
+            "src": "img/github.svg",
+            "width": 100,
+            "height": 100
+          }
+        },
+        "opacity": {
+          "value": 0.5,
+          "random": false,
+          "anim": {
+            "enable": false,
+            "speed": 1,
+            "opacity_min": 0.1,
+            "sync": false
+          }
+        },
+        "size": {
+          "value": 6,
+          "random": true,
+          "anim": {
+            "enable": false,
+            "speed": 40,
+            "size_min": 0.1,
+            "sync": false
+          }
+        },
+        "line_linked": {
+          "enable": true,
+          "distance": 150,
+          "color": "#ffffff",
+          "opacity": 0.4,
+          "width": 1
+        },
+        "move": {
+          "enable": true,
+          "speed": 2,
+          "direction": "none",
+          "random": false,
+          "straight": false,
+          "out_mode": "out",
+          "attract": {
+            "enable": false,
+            "rotateX": 600,
+            "rotateY": 1200
+          }
+        }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": {
+            "enable": true,
+            "mode": "grab"
+          },
+          "onclick": {
+            "enable": true,
+            "mode": "push"
+          },
+          "resize": true
+        },
+        "modes": {
+          "grab": {
+            "distance": 400,
+            "line_linked": { 
+              "opacity": 1
+            }
+          },
+          "bubble": { 
+            "distance": 400,
+            "size": 40,
+            "duration": 2,
+            "opacity": 8,
+            "speed": 3
+          },
+          "repulse": {
+            "distance": 200
+          },
+          "push": {
+            "particles_nb": 4
+          }, 
+          "remove": {
+            "particles_nb": 2
+          }
+        }
+      },
+      "retina_detect": true,
+      "config_demo": {
+        "hide_card": false,
+        "background_color": "#b61924",
+        "background_image": "",
+        "background_position": "50% 50%",
+        "background_repeat": "no-repeat",
+        "background_size": "cover"
+      }
+    }
+
+  ); 
+
+	   </script>
+
+
+</body>
+</html>
